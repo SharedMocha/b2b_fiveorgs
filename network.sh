@@ -3,11 +3,11 @@
 starttime=$(date +%s)
 
 # defaults; export these variables before executing this script
-: ${DOMAIN:="example.com"}
+: ${DOMAIN:="b2b.com"}
 : ${IP_ORDERER:="54.234.201.67"}
-: ${ORG1:="visa"}
-: ${ORG2:="mastercard"}
-: ${ORG3:="pwc"}
+: ${ORG1:="cisco"}
+: ${ORG2:="ryder"}
+: ${ORG3:="fedex"}
 : ${IP1:="54.86.191.160"}
 : ${IP2:="54.243.0.168"}
 : ${IP3:="54.211.142.174"}
@@ -17,9 +17,9 @@ CLI_TIMEOUT=10000
 COMPOSE_TEMPLATE=ledger/docker-composetemplate.yaml
 COMPOSE_FILE_DEV=ledger/docker-composedev.yaml
 
-CHAINCODE_COMMON_NAME=auditandmoneytrasnfer
-CHAINCODE_BILATERAL_NAME=trasfermoney
-CHAINCODE_COMMON_INIT='{"Args":["init","visa","100","mastercard","100"]}'
+CHAINCODE_COMMON_NAME=rmatracking
+CHAINCODE_BILATERAL_NAME=payments
+CHAINCODE_COMMON_INIT='{"Args":["init"]}'
 CHAINCODE_BILATERAL_INIT='{"Args":["init","visa","100","mastercard","100"]}'
 CHAINCODE_WARMUP_QUERY='{\"Args\":[\"query\"]}'
 
