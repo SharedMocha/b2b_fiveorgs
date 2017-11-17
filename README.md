@@ -1,4 +1,4 @@
-# Starter Application for Hyperledger Fabric 1.0
+# Starter Application for Hyperledger Fabric 1.0 for B2B communications between partners
 
 Create a network to jump start development of your decentralized application.
 
@@ -23,9 +23,9 @@ Most of the plumbing work is taken care of by this starter.
 Network consortium consists of:
 
 - Orderer organization `example.com`
-- Peer organization org1 `a` 
-- Peer organization org2 `b` 
-- Peer organization org3 `c`
+- Peer organization org1 `manufacturing company` (Ex-a)
+- Peer organization org2 `logistic partner` (Ex-b)
+- Peer organization org3 `shipment company` (Ex-c)
 
 They transact with each other on the following channels:
 
