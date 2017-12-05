@@ -52,6 +52,9 @@ type B2B_3B3 struct {
 }
 type B2B_3B13 struct {
 	ShipNotice  	    string 				`json:"shipnotice"`
+	FELocation  	    string 				`json:"felocation"`
+	FEName  	        string 				`json:"fename"`
+
 }
 
 type RMA struct {
@@ -89,7 +92,10 @@ func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Response {
 	}  else if function == "update3b3OrderPOD" {
 		// Deletes an entity from its state
 		return t.update3B3POD(stub, args)
-	} else if function == "query" {
+	}  else if function == "updateFElocation" {
+		// Deletes an entity from its state
+		return t.update3B3POD(stub, args)
+	}  else if function == "query" {
 		// the old "Query" is now implemtned in invoke
 		return t.query(stub, args)
 	}
@@ -175,7 +181,7 @@ func (t *SimpleChaincode) update3B13(stub shim.ChaincodeStubInterface, args []st
 
 	rmano := args[0]
 	status := args[1]
-
+	//felocation :=  args[2]
 
 	rma, err := getRMA(stub, rmano)
 	if err != nil {
@@ -190,6 +196,47 @@ func (t *SimpleChaincode) update3B13(stub shim.ChaincodeStubInterface, args []st
 	}
 	*/
 	rma.B2B_3B13.ShipNotice = status
+	//rma.B2B_3B13.FELocation = felocation
+
+
+	err = putRMA(stub, rma)
+	if err != nil {
+		return shim.Error("cannot put rma")
+	}
+
+	return shim.Success(nil)
+}
+func (t *SimpleChaincode) updateFElocation(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+
+	/*
+	cert, _ := stub.GetCreator()
+	org := getOrganization(cert)
+
+	if org != "cisco" {
+		return pb.Response{Message:"only cisco is authorized to update via 3B11", Status:401}
+	}
+	*/
+
+	rmano := args[0]
+	fename := args[1]
+	felocation :=  args[2]
+
+	rma, err := getRMA(stub, rmano)
+	if err != nil {
+		return shim.Error("cannot get rma")
+	}
+
+	/*
+	if part == "engine" {
+		car.Engine.Maker = maker
+	} else {
+		return pb.Response{Message:"cannot set anything but engine", Status:400}
+	}
+	*/
+	rma.B2B_3B13.FELocation = felocation
+	rma.B2B_3B13.FEName = fename
+
+
 
 	err = putRMA(stub, rma)
 	if err != nil {
