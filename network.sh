@@ -8,9 +8,15 @@ starttime=$(date +%s)
 : ${ORG1:="cisco"}
 : ${ORG2:="ryder"}
 : ${ORG3:="fedex"}
+: ${ORG4:="ups"}
+: ${ORG5:="flextronics"}
 : ${IP1:="54.86.191.160"}
 : ${IP2:="54.243.0.168"}
 : ${IP3:="54.211.142.174"}
+: ${IP4:="54.211.142.175"}
+: ${IP5:="54.211.142.176"}
+
+
 
 WGET_OPTS="--verbose -N"
 CLI_TIMEOUT=10000
@@ -32,12 +38,35 @@ DEFAULT_PEER0_EVENT_PORT=7053
 DEFAULT_PEER1_PORT=7056
 DEFAULT_PEER1_EVENT_PORT=7058
 
-DEFAULT_ORDERER_EXTRA_HOSTS="extra_hosts:[newline]      - peer0.$ORG1.$DOMAIN:$IP1[newline]      - peer0.$ORG2.$DOMAIN:$IP2[newline]      - peer0.$ORG3.$DOMAIN:$IP3"
+DEFAULT_ORDERER_EXTRA_HOSTS="extra_hosts:[newline]      - peer0.$ORG1.$DOMAIN:$IP1[newline]      - peer0.$ORG2.$DOMAIN:$IP2[newline]      - peer0.$ORG3.$DOMAIN:$IP3[newline]      - peer0.$ORG4.$DOMAIN:$IP4[newline]      - peer0.$ORG5.$DOMAIN:$IP5"
+#peer0.cisco.b2b.com:54.86.191.160
+#peer0.ryder.b2b.com:54.243.0.168
+#peer0.fedex.b2b.com:54.243.0.168
+#peer0.ups.b2b.com:54.243.0.168
+#peer0.flextronics.b2b.com:54.243.0.168
+
 DEFAULT_PEER_EXTRA_HOSTS="extra_hosts:[newline]      - orderer.$DOMAIN:$IP_ORDERER"
-DEFAULT_CLI_EXTRA_HOSTS="extra_hosts:[newline]      - orderer.$DOMAIN:$IP_ORDERER[newline]      - www.$DOMAIN:$IP_ORDERER[newline]      - www.$ORG1.$DOMAIN:$IP1[newline]      - www.$ORG2.$DOMAIN:$IP2[newline]      - www.$ORG3.$DOMAIN:$IP3"
+#ordererb2b.com:54.234.201.67
+
+DEFAULT_CLI_EXTRA_HOSTS="extra_hosts:[newline]      - orderer.$DOMAIN:$IP_ORDERER[newline]      - www.$DOMAIN:$IP_ORDERER[newline]      - www.$ORG1.$DOMAIN:$IP1[newline]      - www.$ORG2.$DOMAIN:$IP2[newline]      - www.$ORG3.$DOMAIN:$IP3[newline]      - www.$ORG4.$DOMAIN:$IP4[newline]      - www.$ORG5.$DOMAIN:$IP5"
+#orderer.b2b.com:54.234.201.67
+#www.b2b.com:54.234.201.67
+#www.cisco.com:54.234.201.67
+
+#www.ryder.com:54.234.201.67
+#www.fedex.com:54.234.201.67
+#www.ups.com:54.234.201.67
+#www.flextronics.com:54.234.201.67
+
 DEFAULT_API_EXTRA_HOSTS1="extra_hosts:[newline]      - orderer.$DOMAIN:$IP_ORDERER[newline]      - peer0.$ORG2.$DOMAIN:$IP2[newline]      - peer0.$ORG3.$DOMAIN:$IP3"
 DEFAULT_API_EXTRA_HOSTS2="extra_hosts:[newline]      - orderer.$DOMAIN:$IP_ORDERER[newline]      - peer0.$ORG1.$DOMAIN:$IP1[newline]      - peer0.$ORG3.$DOMAIN:$IP3"
 DEFAULT_API_EXTRA_HOSTS3="extra_hosts:[newline]      - orderer.$DOMAIN:$IP_ORDERER[newline]      - peer0.$ORG1.$DOMAIN:$IP1[newline]      - peer0.$ORG2.$DOMAIN:$IP2"
+DEFAULT_API_EXTRA_HOSTS4="extra_hosts:[newline]      - orderer.$DOMAIN:$IP_ORDERER[newline]      - peer0.$ORG1.$DOMAIN:$IP1[newline]      - peer0.$ORG4.$DOMAIN:$IP2"
+#orderer.b2b.com:54.234.201.67
+#peer0.cisco.b2b.com:54.234.201.67
+#peer0.ups.b2b.com:54.234.201.67
+
+
 
 GID=$(id -g)
 
@@ -70,7 +99,7 @@ function removeArtifacts() {
 }
 
 function removeDockersFromCompose() {
-    for o in ${DOMAIN} ${ORG1} ${ORG2} ${ORG3}
+    for o in ${DOMAIN} ${ORG1} ${ORG2} ${ORG3} ${ORG4} ${ORG5}
     do
       f="ledger/docker-compose-$o.yaml"
 
@@ -94,29 +123,29 @@ function removeDockersWithDomain() {
 }
 
 function generateOrdererDockerCompose() {
-    echo "Creating orderer docker compose yaml file with $DOMAIN, $ORG1, $ORG2, $ORG3, $DEFAULT_ORDERER_PORT, $DEFAULT_WWW_PORT"
+    echo "Creating orderer docker compose yaml file with $DOMAIN, $ORG1, $ORG2, $ORG3, $ORG4, $DEFAULT_ORDERER_PORT, $DEFAULT_WWW_PORT"
 
     f="ledger/docker-compose-$DOMAIN.yaml"
     compose_template=ledger/docker-composetemplate-orderer.yaml
 
     cli_extra_hosts=${DEFAULT_CLI_EXTRA_HOSTS}
 
-    sed -e "s/DOMAIN/$DOMAIN/g" -e "s/CLI_EXTRA_HOSTS/$cli_extra_hosts/g" -e "s/ORDERER_PORT/$DEFAULT_ORDERER_PORT/g" -e "s/WWW_PORT/$DEFAULT_WWW_PORT/g" -e "s/ORG1/$ORG1/g" -e "s/ORG2/$ORG2/g" -e "s/ORG3/$ORG3/g" ${compose_template} | awk '{gsub(/\[newline\]/, "\n")}1' > ${f}
+    sed -e "s/DOMAIN/$DOMAIN/g" -e "s/CLI_EXTRA_HOSTS/$cli_extra_hosts/g" -e "s/ORDERER_PORT/$DEFAULT_ORDERER_PORT/g" -e "s/WWW_PORT/$DEFAULT_WWW_PORT/g" -e "s/ORG1/$ORG1/g" -e "s/ORG2/$ORG2/g" -e "s/ORG3/$ORG3/g" -e "s/ORG4/$ORG4/g" -e "s/ORG5/$ORG5/g" ${compose_template} | awk '{gsub(/\[newline\]/, "\n")}1' > ${f}
 }
 
 function generateOrdererArtifacts() {
-    echo "Creating orderer yaml files with $DOMAIN, $ORG1, $ORG2, $ORG3, $DEFAULT_ORDERER_PORT, $DEFAULT_WWW_PORT"
+    echo "Creating orderer yaml files with $DOMAIN, $ORG1, $ORG2, $ORG3, $ORG4, $DEFAULT_ORDERER_PORT, $DEFAULT_WWW_PORT"
 
     f="ledger/docker-compose-$DOMAIN.yaml"
 
     # replace in configtx
-    sed -e "s/DOMAIN/$DOMAIN/g" -e "s/ORG1/$ORG1/g" -e "s/ORG2/$ORG2/g" -e "s/ORG3/$ORG3/g" artifacts/configtxtemplate.yaml > artifacts/configtx.yaml
+    sed -e "s/DOMAIN/$DOMAIN/g" -e "s/ORG1/$ORG1/g" -e "s/ORG2/$ORG2/g" -e "s/ORG3/$ORG3/g" -e "s/ORG4/$ORG4/g" -e "s/ORG5/$ORG5/g"    artifacts/configtxtemplate.yaml > artifacts/configtx.yaml
 
     # replace in cryptogen
     sed -e "s/DOMAIN/$DOMAIN/g" artifacts/cryptogentemplate-orderer.yaml > artifacts/"cryptogen-$DOMAIN.yaml"
 
     # replace in network-config.json
-    sed -e "s/\DOMAIN/$DOMAIN/g" -e "s/\ORG1/$ORG1/g" -e "s/\ORG2/$ORG2/g" -e "s/\ORG3/$ORG3/g" -e "s/^\s*\/\/.*$//g" artifacts/network-config-template.json > artifacts/network-config.json
+    sed -e "s/\DOMAIN/$DOMAIN/g" -e "s/\ORG1/$ORG1/g" -e "s/\ORG2/$ORG2/g" -e "s/\ORG3/$ORG3/g" -e "s/\ORG4/$ORG4/g"  -e "s/\ORG5/$ORG5/g"  -e "s/^\s*\/\/.*$//g" artifacts/network-config-template.json > artifacts/network-config.json
 
     echo "Generating crypto material with cryptogen"
     docker-compose --file ${f} run --rm "cli.$DOMAIN" bash -c "sleep 2 && cryptogen generate --config=cryptogen-$DOMAIN.yaml"
@@ -125,7 +154,7 @@ function generateOrdererArtifacts() {
     mkdir -p artifacts/channel
     docker-compose --file ${f} run --rm -e FABRIC_CFG_PATH=/etc/hyperledger/artifacts "cli.$DOMAIN" configtxgen -profile OrdererGenesis -outputBlock ./channel/genesis.block
 
-    for channel_name in common "$ORG1-$ORG2" "$ORG1-$ORG3" "$ORG2-$ORG3"
+    for channel_name in common "$ORG1-$ORG2" "$ORG1-$ORG3" "$ORG2-$ORG3" "$ORG1-$ORG4" "$ORG1-$ORG5" "$ORG1-$ORG2-$ORG3" "$ORG1-$ORG4-$ORG5"
     do
         echo "Generating channel config transaction for $channel_name"
         docker-compose --file ${f} run --rm -e FABRIC_CFG_PATH=/etc/hyperledger/artifacts "cli.$DOMAIN" configtxgen -profile "$channel_name" -outputCreateChannelTx "./channel/$channel_name.tx" -channelID "$channel_name"
@@ -134,9 +163,15 @@ function generateOrdererArtifacts() {
     echo "Changing artifacts file ownership"
     docker-compose --file ${f} run --rm "cli.$DOMAIN" bash -c "chown -R $UID:$GID ."
 }
-
+#No 1 FUnction called to generate artifacts
 function generatePeerArtifacts() {
+#take inout from $1
+
     org=$1
+# [[ is like if condiiton
+#Check if arguments using "$#" and count if 0 or more than 0
+#Check if arguments using "$#" and count if 0 or more than 0
+# generatePeerArtifacts ${ORG4} 4003 8084 1054 1051 1053 1056 1058
 
     [[ ${#} == 0 ]] && echo "missing required argument -o ORG" && exit 1
 
@@ -150,19 +185,34 @@ function generatePeerArtifacts() {
         api_extra_hosts=${DEFAULT_API_EXTRA_HOSTS2}
       elif [ ${org} == ${ORG3} ]; then
         api_extra_hosts=${DEFAULT_API_EXTRA_HOSTS3}
+      elif [ ${org} == ${ORG4} ]; then
+        api_extra_hosts=${DEFAULT_API_EXTRA_HOSTS4}
+      elif [ ${org} == ${ORG5} ]; then
+        api_extra_hosts=${DEFAULT_API_EXTRA_HOSTS5}
       fi
     fi
+# generatePeerArtifacts ${ORG4} 4003 8084 1054 1051 1053 1056 1058
 
     api_port=$2
+    #4003
     www_port=$3
+    #8084
     ca_port=$4
+    #1054
+
     peer0_port=$5
+    #1051
     peer0_event_port=$6
+    #1053
     peer1_port=$7
+    #1056
     peer1_event_port=$8
+    #1058
 
     : ${api_port:=${DEFAULT_API_PORT}}
+    #API for website
     : ${www_port:=${DEFAULT_WWW_PORT}}
+    #for nginx
     : ${ca_port:=${DEFAULT_CA_PORT}}
     : ${peer0_port:=${DEFAULT_PEER0_PORT}}
     : ${peer0_event_port:=${DEFAULT_PEER0_EVENT_PORT}}
@@ -179,6 +229,19 @@ function generatePeerArtifacts() {
 
     # docker-compose.yaml
     sed -e "s/PEER_EXTRA_HOSTS/$peer_extra_hosts/g" -e "s/CLI_EXTRA_HOSTS/$cli_extra_hosts/g" -e "s/API_EXTRA_HOSTS/$api_extra_hosts/g" -e "s/DOMAIN/$DOMAIN/g" -e "s/\([^ ]\)ORG/\1$org/g" -e "s/API_PORT/$api_port/g" -e "s/WWW_PORT/$www_port/g" -e "s/CA_PORT/$ca_port/g" -e "s/PEER0_PORT/$peer0_port/g" -e "s/PEER0_EVENT_PORT/$peer0_event_port/g" -e "s/PEER1_PORT/$peer1_port/g" -e "s/PEER1_EVENT_PORT/$peer1_event_port/g" ${compose_template} | awk '{gsub(/\[newline\]/, "\n")}1' > ${f}
+    #sed -e "s/PEER_EXTRA_HOSTS/$peer_extra_hosts/g" -e
+    # "s/CLI_EXTRA_HOSTS/$cli_extra_hosts/g" -e
+    # "s/API_EXTRA_HOSTS/$api_extra_hosts/g" -e
+    # "s/DOMAIN/$DOMAIN/g" -e "s/\([^ ]\)ORG/\1$org/g"
+    # -e "s/API_PORT/$api_port/g"
+    # -e "s/WWW_PORT/$www_port/g"
+    # -e "s/CA_PORT/$ca_port/g"
+    # -e "s/PEER0_PORT/$peer0_port/g"
+    # -e "s/PEER0_EVENT_PORT/$peer0_event_port/g"
+    # -e "s/PEER1_PORT/$peer1_port/g"
+    # -e "s/PEER1_EVENT_PORT/$peer1_event_port/g" ${compose_template} | awk '{gsub(/\[newline\]/, "\n")}1' > ${f}
+
+
 
     # fabric-ca-server-config.yaml
     sed -e "s/ORG/$org/g" artifacts/fabric-ca-server-configtemplate.yaml > artifacts/"fabric-ca-server-config-$org.yaml"
@@ -302,10 +365,14 @@ function installChaincode() {
     docker-compose --file ${f} run --rm "cli.$org.$DOMAIN" bash -c "CORE_PEER_ADDRESS=peer0.$org.$DOMAIN:7051 peer chaincode install -n $n -v 1.0 -p $p && CORE_PEER_ADDRESS=peer1.$org.$DOMAIN:7051 peer chaincode install -n $n -v 1.0 -p $p"
 }
 
+#First Function to becalled
 function dockerComposeUp () {
+
   compose_file="ledger/docker-compose-$1.yaml"
+#$1 get the first argument
 
   info "starting docker instances from $compose_file"
+  #exit 2
 
   TIMEOUT=${CLI_TIMEOUT} docker-compose -f ${compose_file} up -d 2>&1
   if [ $? -ne 0 ]; then
@@ -366,6 +433,18 @@ function joinWarmUp() {
 }
 
 function createJoinInstantiateWarmUp() {
+
+  #createJoinInstantiateWarmUp ${ORG1}
+  # common
+  # ${CHAINCODE_COMMON_NAME}
+  # ${CHAINCODE_COMMON_INIT}
+  #createJoinInstantiateWarmUp ${ORG1}
+  # "${ORG1}-${ORG2}"
+  # ${CHAINCODE_BILATERAL_NAME}
+  # ${CHAINCODE_BILATERAL_INIT}
+  #createJoinInstantiateWarmUp ${ORG1} "${ORG1}-${ORG3}" ${CHAINCODE_BILATERAL_NAME} ${CHAINCODE_BILATERAL_INIT}
+  #createJoinInstantiateWarmUp ${ORG1} "${ORG1}-${ORG4}" ${CHAINCODE_BILATERAL_NAME} ${CHAINCODE_BILATERAL_INIT}
+
   org=${1}
   channel_name=${2}
   chaincode_name=${3}
@@ -381,7 +460,7 @@ function createJoinInstantiateWarmUp() {
 function makeCertDirs() {
   mkdir -p "artifacts/crypto-config/ordererOrganizations/$DOMAIN/orderers/orderer.$DOMAIN/tls"
 
-  for org in ${ORG1} ${ORG2} ${ORG3}
+  for org in ${ORG1} ${ORG2} ${ORG3} ${ORG4} ${ORG5}
     do
         d="artifacts/crypto-config/peerOrganizations/$org.$DOMAIN/peers/peer0.$org.$DOMAIN/tls"
         echo "mkdir -p ${d}"
@@ -394,7 +473,7 @@ function downloadMemberMSP() {
 
     info "downloading member MSP files using $f"
 
-    c="for ORG in ${ORG1} ${ORG2} ${ORG3}; do wget ${WGET_OPTS} --directory-prefix crypto-config/peerOrganizations/\$ORG.$DOMAIN/msp/admincerts http://www.\$ORG.$DOMAIN:$DEFAULT_WWW_PORT/crypto-config/peerOrganizations/\$ORG.$DOMAIN/msp/admincerts/Admin@\$ORG.$DOMAIN-cert.pem && wget ${WGET_OPTS} --directory-prefix crypto-config/peerOrganizations/\$ORG.$DOMAIN/msp/cacerts http://www.\$ORG.$DOMAIN:$DEFAULT_WWW_PORT/crypto-config/peerOrganizations/\$ORG.$DOMAIN/msp/cacerts/ca.\$ORG.$DOMAIN-cert.pem && wget ${WGET_OPTS} --directory-prefix crypto-config/peerOrganizations/\$ORG.$DOMAIN/msp/tlscacerts http://www.\$ORG.$DOMAIN:$DEFAULT_WWW_PORT/crypto-config/peerOrganizations/\$ORG.$DOMAIN/msp/tlscacerts/tlsca.\$ORG.$DOMAIN-cert.pem; done"
+    c="for ORG in ${ORG1} ${ORG2} ${ORG3} ${ORG4} ${ORG5}; do wget ${WGET_OPTS} --directory-prefix crypto-config/peerOrganizations/\$ORG.$DOMAIN/msp/admincerts http://www.\$ORG.$DOMAIN:$DEFAULT_WWW_PORT/crypto-config/peerOrganizations/\$ORG.$DOMAIN/msp/admincerts/Admin@\$ORG.$DOMAIN-cert.pem && wget ${WGET_OPTS} --directory-prefix crypto-config/peerOrganizations/\$ORG.$DOMAIN/msp/cacerts http://www.\$ORG.$DOMAIN:$DEFAULT_WWW_PORT/crypto-config/peerOrganizations/\$ORG.$DOMAIN/msp/cacerts/ca.\$ORG.$DOMAIN-cert.pem && wget ${WGET_OPTS} --directory-prefix crypto-config/peerOrganizations/\$ORG.$DOMAIN/msp/tlscacerts http://www.\$ORG.$DOMAIN:$DEFAULT_WWW_PORT/crypto-config/peerOrganizations/\$ORG.$DOMAIN/msp/tlscacerts/tlsca.\$ORG.$DOMAIN-cert.pem; done"
     echo ${c}
     docker-compose --file ${f} run --rm "cli.$DOMAIN" bash -c "${c} && chown -R $UID:$GID ."
 }
@@ -456,7 +535,7 @@ function downloadArtifactsMember() {
   #TODO download not from all members but from the orderer
   info "downloading member cert files using $f"
 
-  c="for ORG in ${ORG1} ${ORG2} ${ORG3}; do wget ${WGET_OPTS} --directory-prefix crypto-config/peerOrganizations/\${ORG}.$DOMAIN/peers/peer0.\${ORG}.$DOMAIN/tls http://www.\${ORG}.$DOMAIN:$DEFAULT_WWW_PORT/crypto-config/peerOrganizations/\${ORG}.$DOMAIN/peers/peer0.\${ORG}.$DOMAIN/tls/ca.crt; done"
+  c="for ORG in ${ORG1} ${ORG2} ${ORG3} ${ORG3}; do wget ${WGET_OPTS} --directory-prefix crypto-config/peerOrganizations/\${ORG}.$DOMAIN/peers/peer0.\${ORG}.$DOMAIN/tls http://www.\${ORG}.$DOMAIN:$DEFAULT_WWW_PORT/crypto-config/peerOrganizations/\${ORG}.$DOMAIN/peers/peer0.\${ORG}.$DOMAIN/tls/ca.crt; done"
   echo ${c}
   docker-compose --file ${f} run --rm "cli.$org.$DOMAIN" bash -c "${c} && chown -R $UID:$GID ."
 }
@@ -474,7 +553,7 @@ function downloadArtifactsOrderer() {
 
   info "downloading member cert files using $f"
 
-  c="for ORG in ${ORG1} ${ORG2} ${ORG3}; do wget ${WGET_OPTS} --directory-prefix crypto-config/peerOrganizations/\${ORG}.$DOMAIN/peers/peer0.\${ORG}.$DOMAIN/tls http://www.\${ORG}.$DOMAIN:$DEFAULT_WWW_PORT/crypto-config/peerOrganizations/\${ORG}.$DOMAIN/peers/peer0.\${ORG}.$DOMAIN/tls/ca.crt; done"
+  c="for ORG in ${ORG1} ${ORG2} ${ORG3} ${ORG4} ${ORG5}; do wget ${WGET_OPTS} --directory-prefix crypto-config/peerOrganizations/\${ORG}.$DOMAIN/peers/peer0.\${ORG}.$DOMAIN/tls http://www.\${ORG}.$DOMAIN:$DEFAULT_WWW_PORT/crypto-config/peerOrganizations/\${ORG}.$DOMAIN/peers/peer0.\${ORG}.$DOMAIN/tls/ca.crt; done"
   echo ${c}
   docker-compose --file ${f} run --rm "cli.$DOMAIN" bash -c "${c} && chown -R $UID:$GID ."
 }
@@ -549,8 +628,12 @@ function generatePeerArtifacts3() {
   generatePeerArtifacts ${ORG3} 4002 8083 9054 9051 9053 9056 9058
 }
 
+function generatePeerArtifacts4() {
+  generatePeerArtifacts ${ORG4} 4003 8084 1054 1051 1053 1056 1058
+}
+
 function printArgs() {
-  echo "$DOMAIN, $ORG1, $ORG2, $ORG3, $IP1, $IP2, $IP3"
+  echo "$DOMAIN, $ORG1, $ORG2, $ORG3, $ORG4,$ORG5, $IP1, $IP2, $IP3"
 }
 
 function iterateChannels() {
@@ -629,6 +712,20 @@ function printHelp () {
 }
 
 # Parse commandline args
+#  getouts should be used inside while loop so all options are parsed.
+# "h?m:o:a:w:c:0:1:2:3:k:" are the possible options our script will accept EX- ./network.sh -m
+# ":" next to "h?m:o:a:w:c:0:1:2:3:k:" means we have extra options like ./network.sh -m GENERATE. The option value will be stored in $OPTARG
+# $NO root privilage needed
+# opt store the options "-m" "-h")
+#$OPTARG stores options like "generate" "up" "down"
+# exit 0 = success
+#exit 1 = general errors
+#exit code 2 = misuse of shell builtins
+#h|\? - show default -use "?" for that
+#esac end a case statement
+#done close while do
+#while [condiiton] do.....done (syntax)
+$OPTARG
 while getopts "h?m:o:a:w:c:0:1:2:3:k:" opt; do
   case "$opt" in
     h|\?)
@@ -636,6 +733,7 @@ while getopts "h?m:o:a:w:c:0:1:2:3:k:" opt; do
       exit 0
     ;;
     m)  MODE=$OPTARG
+    #Setting -generate stored in $OPTARG into MODE
     ;;
     o)  ORG=$OPTARG
     ;;
@@ -656,15 +754,19 @@ while getopts "h?m:o:a:w:c:0:1:2:3:k:" opt; do
     k)  CHANNELS=$OPTARG
     ;;
   esac
+  #done for case
 done
+#done for while loop
 
 if [ "${MODE}" == "up" -a "${ORG}" == "" ]; then
-  for org in ${DOMAIN} ${ORG1} ${ORG2} ${ORG3}
+#For Loop to get DOMAINS and ORG and place in "org"
+  for org in ${DOMAIN} ${ORG1} ${ORG2} ${ORG3} ${ORG4} ${ORG5}
   do
     dockerComposeUp ${org}
+    #Pass org that is obtained to create docker compose files
   done
 
-  for org in ${ORG1} ${ORG2} ${ORG3}
+  for org in ${ORG1} ${ORG2} ${ORG3} ${ORG4} ${ORG5}
   do
     installAll ${org}
   done
@@ -672,14 +774,32 @@ if [ "${MODE}" == "up" -a "${ORG}" == "" ]; then
   createJoinInstantiateWarmUp ${ORG1} common ${CHAINCODE_COMMON_NAME} ${CHAINCODE_COMMON_INIT}
   createJoinInstantiateWarmUp ${ORG1} "${ORG1}-${ORG2}" ${CHAINCODE_BILATERAL_NAME} ${CHAINCODE_BILATERAL_INIT}
   createJoinInstantiateWarmUp ${ORG1} "${ORG1}-${ORG3}" ${CHAINCODE_BILATERAL_NAME} ${CHAINCODE_BILATERAL_INIT}
+  createJoinInstantiateWarmUp ${ORG1} "${ORG1}-${ORG4}" ${CHAINCODE_BILATERAL_NAME} ${CHAINCODE_BILATERAL_INIT}
+  createJoinInstantiateWarmUp ${ORG1} "${ORG1}-${ORG5}" ${CHAINCODE_BILATERAL_NAME} ${CHAINCODE_BILATERAL_INIT}
+  createJoinInstantiateWarmUp ${ORG1} "${ORG1}-${ORG2}-${ORG3}" ${CHAINCODE_COMMON_NAME} ${CHAINCODE_COMMON_INIT}
+  createJoinInstantiateWarmUp ${ORG1} "${ORG1}-${ORG4}-${ORG5}" ${CHAINCODE_COMMON_NAME} ${CHAINCODE_COMMON_INIT}
 
   joinWarmUp ${ORG2} common ${CHAINCODE_COMMON_NAME}
   joinWarmUp ${ORG2} "${ORG1}-${ORG2}" ${CHAINCODE_BILATERAL_NAME}
+  joinWarmUp ${ORG2} "${ORG1}-${ORG2}-${ORG3}" ${CHAINCODE_COMMON_INIT}
   createJoinInstantiateWarmUp ${ORG2} "${ORG2}-${ORG3}" ${CHAINCODE_BILATERAL_NAME} ${CHAINCODE_BILATERAL_INIT}
 
   joinWarmUp ${ORG3} common ${CHAINCODE_COMMON_NAME}
   joinWarmUp ${ORG3} "${ORG1}-${ORG3}" ${CHAINCODE_BILATERAL_NAME}
   joinWarmUp ${ORG3} "${ORG2}-${ORG3}" ${CHAINCODE_BILATERAL_NAME}
+  joinWarmUp ${ORG3} "${ORG1}-${ORG2}-${ORG3}" ${CHAINCODE_COMMON_NAME}
+
+
+  joinWarmUp ${ORG4} common ${CHAINCODE_COMMON_NAME}
+  joinWarmUp ${ORG4} "${ORG1}-${ORG4}" ${CHAINCODE_BILATERAL_NAME}
+  joinWarmUp ${ORG4} "${ORG1}-${ORG4}-${ORG5}" ${CHAINCODE_COMMON_NAME}
+
+  joinWarmUp ${ORG5} common ${CHAINCODE_COMMON_NAME}
+  joinWarmUp ${ORG5} "${ORG1}-${ORG5}" ${CHAINCODE_BILATERAL_NAME}
+  joinWarmUp ${ORG5} "${ORG1}-${ORG4}-${ORG5}" ${CHAINCODE_COMMON_NAME}
+
+
+
 
 elif [ "${MODE}" == "down" ]; then
   dockerComposeDown ${DOMAIN}
@@ -695,6 +815,9 @@ elif [ "${MODE}" == "generate" ]; then
   generatePeerArtifacts ${ORG1} 4000 8081 7054 7051 7053 7056 7058
   generatePeerArtifacts ${ORG2} 4001 8082 8054 8051 8053 8056 8058
   generatePeerArtifacts ${ORG3} 4002 8083 9054 9051 9053 9056 9058
+  generatePeerArtifacts ${ORG4} 4003 8084 1054 1051 1053 1056 1058
+  generatePeerArtifacts ${ORG5} 4004 8085 1064 1061 1063 1066 1068
+
   generateOrdererDockerCompose
   generateOrdererArtifacts
   generateWait
